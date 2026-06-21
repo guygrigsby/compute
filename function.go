@@ -132,4 +132,13 @@ type Function interface {
 	//
 	// Returns the outputs of the executed branch.
 	If(pred Value, trueBranch, falseBranch Function) ([]Value, error)
+
+	// OptimizationBarrier returns its operands unchanged, but forbids the compiler
+	// from optimizing across the barrier (e.g. common-subexpression-eliminating the
+	// operand subgraphs with identical computations elsewhere). This is the building
+	// block for gradient checkpointing / rematerialization: it keeps a recomputed
+	// forward distinct from the original so the original's activations can be freed.
+	// With a single operand it may be a no-op (a value already depends on itself);
+	// pass >=2 operands jointly to force a real barrier.
+	OptimizationBarrier(operands ...Value) ([]Value, error)
 }
